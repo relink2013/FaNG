@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.fileprovider-actionsui</string>
+		<key>NSExtensionPrincipalClass</key>
+		<string>$(PRODUCT_MODULE_NAME).ActionViewController</string>
+		<key>NSExtensionFileProviderActions</key>
+		<array>
+			<dict>
+				<key>NSExtensionFileProviderActionIdentifier</key>
+				<string>com.rlx.fang.action.resolve</string>
+				<key>NSExtensionFileProviderActionName</key>
+				<string>Resolve Conflict…</string>
+				<key>NSExtensionFileProviderActionActivationRule</key>
+				<string>SUBQUERY(fileproviderItems, $fileproviderItem, $fileproviderItem.userInfo.conflict == YES).@count == 1 AND fileproviderItems.@count == 1</string>
+			</dict>
+			<dict>
+				<key>NSExtensionFileProviderActionIdentifier</key>
+				<string>com.rlx.fang.action.versions</string>
+				<key>NSExtensionFileProviderActionName</key>
+				<string>Versions…</string>
+				<key>NSExtensionFileProviderActionActivationRule</key>
+				<string>SUBQUERY(fileproviderItems, $fileproviderItem, $fileproviderItem.userInfo.fang == YES).@count == 1 AND fileproviderItems.@count == 1</string>
+			</dict>
+			<dict>
+				<key>NSExtensionFileProviderActionIdentifier</key>
+				<string>com.rlx.fang.action.copy</string>
+				<key>NSExtensionFileProviderActionName</key>
+				<string>Copy To…</string>
+				<key>NSExtensionFileProviderActionActivationRule</key>
+				<string>SUBQUERY(fileproviderItems, $fileproviderItem, $fileproviderItem.userInfo.transfer == YES).@count == fileproviderItems.@count AND fileproviderItems.@count &gt;= 1</string>
+			</dict>
+			<dict>
+				<key>NSExtensionFileProviderActionIdentifier</key>
+				<string>com.rlx.fang.action.move</string>
+				<key>NSExtensionFileProviderActionName</key>
+				<string>Move To…</string>
+				<key>NSExtensionFileProviderActionActivationRule</key>
+				<string>SUBQUERY(fileproviderItems, $fileproviderItem, $fileproviderItem.userInfo.transfer == YES).@count == fileproviderItems.@count AND fileproviderItems.@count &gt;= 1</string>
+			</dict>
+		</array>
+	</dict>
+</dict>
+</plist>

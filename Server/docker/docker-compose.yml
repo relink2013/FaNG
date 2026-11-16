@@ -1,0 +1,163 @@
+# The FaNG stack. Run it from this folder, next to a .env made from env.example:
+#   docker compose build && docker compose up -d
+# FANG_SRC is the server's source folder (the parent of this one by default).
+name: fang
+
+# Every container's log is capped (Docker keeps them forever otherwise, quietly growing appdata).
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  fang:
+    container_name: fang
+    logging: *logging
+    image: fang:dev
+    # Unraid's Docker page: the admin page as the container's WebUI, and its icon (set both in .env).
+    labels:
+      net.unraid.docker.webui: ${FANG_ADMIN_URL:-}
+      net.unraid.docker.icon: ${FANG_ICON_URL:-}
+    build:
+      context: ${FANG_SRC:-..}
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      fang-postgres:
+        condition: service_healthy
+    environment:
+      FANG_DB_PASSWORD: ${FANG_DB_PASSWORD}
+      FANG_VERSION_DAYS: ${FANG_VERSION_DAYS:-365}
+      FANG_DELETED_RECORD_DAYS: ${FANG_DELETED_RECORD_DAYS:-30}
+      FANG_REMOVED_SHARE_DAYS: ${FANG_REMOVED_SHARE_DAYS:-7}
+    # A ceiling, so nothing in FaNG can take the host's memory (the OOM killer then stops the container, not the
+    # host). Workers size themselves to the CPUs and to this limit.
+    mem_limit: ${FANG_MEMORY:-16g}
+    # fanotify filesystem marks and opening the file handles they report (fang-storaged only).
+    cap_add:
+      - SYS_ADMIN
+      - DAC_READ_SEARCH
+    # fang-api runs unprivileged and still answers on 443.
+    sysctls:
+      net.ipv4.ip_unprivileged_port_start: 0
+    volumes:
+      - ./fang/config:/config
+      # Read-only: start.sh makes only the shares writable inside the container, so FaNG can't write anywhere else
+      # under /mnt (a new top-level folder on a pool would become an Unraid user share).
+      - ${FANG_SHARE_SOURCE}:${FANG_SHARE_TARGET}:ro
+      - ${FANG_THUMBNAILS:-./thumbnails}:/thumbnails:ro
+    networks:
+      lan:
+        ipv4_address: ${FANG_IP}
+      internal: {}
+
+  # Thumbnails: one WebP per media file, kept in FANG_THUMBNAILS (an SSD folder; default ./thumbnails).
+  # Reads the shares read-only, runs as the files' owner, and has no LAN access.
+  fang-thumbs:
+    container_name: fang-thumbs
+    logging: *logging
+    image: fang-thumbs:dev
+    build:
+      context: ${FANG_SRC:-..}
+      dockerfile: docker/Dockerfile.thumbs
+    restart: unless-stopped
+    depends_on:
+      fang-postgres:
+        condition: service_healthy
+    environment:
+      FANG_DB_PASSWORD: ${FANG_DB_PASSWORD}
+      FANG_SHARES_FILE: /config/served/shares.conf
+      FANG_THUMB_SIZE: ${FANG_THUMB_SIZE:-512}
+      FANG_THUMB_QUALITY: ${FANG_THUMB_QUALITY:-80}
+      # Workers: empty sizes them to the host (half the CPUs, 1 GB each within half the memory limit).
+      FANG_THUMB_WORKERS: ${FANG_THUMB_WORKERS:-}
+      # Each image tool uses two threads; the workers run many files side by side instead.
+      VIPS_CONCURRENCY: "2"
+    # Thumbnails are background work: a quarter of the normal CPU weight, so whatever else the host runs comes
+    # first when the CPUs are busy (they still use every idle core), and a memory ceiling.
+    cpu_shares: 256
+    mem_limit: ${FANG_THUMBS_MEMORY:-24g}
+    # Reading files whatever their modes (the shares are mounted read-only); the process keeps only this.
+    cap_drop:
+      - ALL
+    cap_add:
+      - DAC_READ_SEARCH
+      - SETUID
+      - SETGID
+      - SETPCAP
+    volumes:
+      # The shares fang-storaged serves (home folders included), written at each start; only this folder of
+      # FaNG's config (the rest holds passwords and keys). fang-thumbs restarts itself when the list changes.
+      - ./fang/config/served:/config/served:ro
+      - ${FANG_SHARE_SOURCE}:${FANG_SHARE_TARGET}:ro
+      - ${FANG_THUMBNAILS:-./thumbnails}:/thumbnails
+    networks:
+      - internal
+
+  fang-postgres:
+    container_name: fang-postgres
+    logging: *logging
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    # Postgres's own cache: Unraid's appdata dataset often caches only metadata in ZFS (primarycache), and
+    # with the stock 128 MB every big update (trashing a folder of 170,000 entries) read the table from disk
+    # again and took minutes. FANG_DB_CACHE sets it (default 4GB).
+    command:
+      - postgres
+      - -c
+      - shared_buffers=${FANG_DB_CACHE:-4GB}
+      - -c
+      - effective_cache_size=${FANG_DB_CACHE:-4GB}
+      - -c
+      - maintenance_work_mem=512MB
+      - -c
+      - work_mem=16MB
+      # Parallel queries and index builds, and vacuum that keeps up with large deletes.
+      - -c
+      - max_worker_processes=16
+      - -c
+      - max_parallel_workers=8
+      - -c
+      - max_parallel_workers_per_gather=4
+      - -c
+      - max_parallel_maintenance_workers=4
+      - -c
+      - autovacuum_vacuum_scale_factor=0.05
+    shm_size: 1gb
+    mem_limit: ${FANG_DB_MEMORY:-12g}
+    environment:
+      POSTGRES_USER: fang
+      POSTGRES_PASSWORD: ${FANG_DB_PASSWORD}
+      POSTGRES_DB: fang
+    volumes:
+      - ./fang-postgres/data:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "fang", "-d", "fang"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  fang-valkey:
+    container_name: fang-valkey
+    logging: *logging
+    image: valkey/valkey:8-alpine
+    restart: unless-stopped
+    command: ["valkey-server", "--save", "60", "1"]
+    mem_limit: 1g
+    volumes:
+      - ./fang-valkey/data:/data
+    networks:
+      - internal
+
+networks:
+  # The LAN, through Docker's macvlan network on the host (Unraid: br0). FaNG's Samba needs its own
+  # address because the host's Samba already has port 445.
+  lan:
+    name: ${FANG_LAN_NETWORK}
+    external: true
+  internal:
+    name: fang-internal
+    internal: true

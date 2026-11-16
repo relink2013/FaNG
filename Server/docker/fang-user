@@ -1,0 +1,38 @@
+#!/bin/bash
+# Manages FaNG's users (separate from Unraid's).
+#
+#   fang-user add NAME      creates the user and asks for its password
+#   fang-user passwd NAME   changes the password
+#   fang-user list
+set -euo pipefail
+
+usage() { echo "usage: fang-user add|passwd NAME, or fang-user list" >&2; exit 2; }
+
+case ${1:-} in
+add)
+    name=${2:-}
+    [[ $name =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || { echo "Names are lowercase letters, digits, - and _." >&2; exit 2; }
+    if ! grep -q "^$name:" /config/users; then
+        last=$(cut -d: -f2 /config/users | sort -n | tail -1)
+        uid=$(( ${last:-1999} + 1 ))
+        echo "$name:$uid" >> /config/users
+        useradd --uid "$uid" --gid 100 --no-create-home --shell /usr/sbin/nologin "$name"
+    fi
+    # A new server's first user is its admin (the admin page then manages the rest).
+    if ! grep -q '[^[:space:]]' /config/admins 2>/dev/null; then
+        echo "$name" > /config/admins
+        chmod 644 /config/admins
+    fi
+    smbpasswd -a "$name"
+    ;;
+passwd)
+    [[ -n ${2:-} ]] || usage
+    smbpasswd "$2"
+    ;;
+list)
+    pdbedit -L
+    ;;
+*)
+    usage
+    ;;
+esac

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleSymbolName</key>
+			<string>fang.glyph</string>
+		</dict>
+	</dict>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionFileProviderDocumentGroup</key>
+		<string>group.com.rlx.fang</string>
+		<key>NSExtensionFileProviderSupportsEnumeration</key>
+		<true/>
+		<key>NSFileProviderDecorations</key>
+		<array>
+			<dict>
+				<key>Identifier</key>
+				<string>$(PRODUCT_BUNDLE_IDENTIFIER).conflict</string>
+				<key>Label</key>
+				<string>Conflict</string>
+				<key>Category</key>
+				<string>Badge</string>
+				<key>BadgeImageType</key>
+				<string>com.apple.icon-decoration.badge.warning</string>
+			</dict>
+			<dict>
+				<key>Identifier</key>
+				<string>$(PRODUCT_BUNDLE_IDENTIFIER).copying</string>
+				<key>Category</key>
+				<string>Badge</string>
+				<key>BadgeImageType</key>
+				<string>com.apple.icon-decoration.badge.syncing</string>
+				<key>Label</key>
+				<string>Copying</string>
+				<key>LocalizedTitle</key>
+				<dict>
+					<key>NSStringFormat</key>
+					<string>Copying %@%%</string>
+					<key>NSStringFormatValues</key>
+					<array>
+						<string>item.userInfo.progress</string>
+					</array>
+				</dict>
+			</dict>
+			<dict>
+				<key>Identifier</key>
+				<string>$(PRODUCT_BUNDLE_IDENTIFIER).copyFailed</string>
+				<key>Label</key>
+				<string>Copy failed</string>
+				<key>Category</key>
+				<string>Badge</string>
+				<key>BadgeImageType</key>
+				<string>com.apple.icon-decoration.badge.warning</string>
+			</dict>
+		</array>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.fileprovider-nonui</string>
+		<key>NSExtensionPrincipalClass</key>
+		<string>$(PRODUCT_MODULE_NAME).FileProviderExtension</string>
+	</dict>
+</dict>
+</plist>
