@@ -190,9 +190,6 @@ flowchart LR
 
 ### 1. Set up the server
 
-<details open>
-<summary><strong>Step by step</strong></summary>
-
 **1. Get the code** on the server:
 
 ```bash
@@ -267,8 +264,6 @@ User names are lowercase letters, digits, `-` and `_`. More users can be added l
 
 Optionally, set up **Home folders** so every user gets a private folder of their own.
 
-</details>
-
 <details>
 <summary><strong>Notes for Unraid</strong></summary>
 
@@ -290,9 +285,6 @@ Optionally, set up **Home folders** so every user gets a private folder of their
 </details>
 
 ### 2. Build and install the app
-
-<details open>
-<summary><strong>Step by step</strong></summary>
 
 **1. Get the code** on your Mac:
 
@@ -321,8 +313,6 @@ Or, from the Terminal, build and install on this Mac and every connected iPhone/
 ```bash
 scripts/deploy.sh
 ```
-
-</details>
 
 ### 3. Connect
 
