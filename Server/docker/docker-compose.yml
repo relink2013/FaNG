@@ -28,6 +28,8 @@ services:
         condition: service_healthy
     environment:
       FANG_DB_PASSWORD: ${FANG_DB_PASSWORD}
+      # The API's port (devices learn it from the server). Change it only without a LAN address of its own.
+      FANG_HTTPS_PORT: ${FANG_HTTPS_PORT:-443}
       FANG_VERSION_DAYS: ${FANG_VERSION_DAYS:-365}
       FANG_DELETED_RECORD_DAYS: ${FANG_DELETED_RECORD_DAYS:-30}
       FANG_REMOVED_SHARE_DAYS: ${FANG_REMOVED_SHARE_DAYS:-7}
