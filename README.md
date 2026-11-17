@@ -57,7 +57,7 @@ I built it because every way of using a home server from Apple devices was a com
 - Home folders.
 - Admin web page.
 
-The app should also work with any regular SMB server, minus versions, trash, live updates and server thumbnails. In addition, the server should work with any regular SMB client, and versioning should be exposed in at least Windows Explorer, though no real testing has been done on either of those scenarios yet.
+The app should also work with any regular SMB server, minus versions, trash, live updates and server thumbnails. In addition, the server should work with any regular SMB client, though no real testing has been done on either of those scenarios yet. Showing versions in Windows Explorer's "Previous Versions" tab is planned.
 
 </details>
 
