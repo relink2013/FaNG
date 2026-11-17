@@ -36,11 +36,29 @@ I built it because every way of using a home server from Apple devices was a com
 <details>
 <summary><strong>Everything else it does</strong></summary>
 
-**App:** Keep Downloaded and Remove Download · edits made offline upload later · transfers resume after a dropped connection or a killed app · **Versions…**, **Resolve Conflict…**, **Copy To…** and **Move To…** in the Files and Finder menu (copies and moves run on the server) · Finder tags and folder icons sync · a "Not Synced" list · SMB3 with optional encryption, pinned server certificate · 🧪 delta transfers (only changed blocks).
 
-**Server:** Samba with FaNG's own module · stable file IDs through renames and moves · live change tracking with fanotify, whatever made the change · versions as space-saving clones where the filesystem supports them (ZFS 2.2+), thinned like Time Machine · an isolated thumbnail worker · permissions per folder and user, enforced for every SMB client (🧪 groups) · home folders · admin web page.
+**App:** 
+- Keep select files downloaded.
+- Edits made offline upload later.
+- Transfers auto resume after a dropped connection.
+- **Versions…**, **Resolve Conflict…**, **Copy To…** and **Move To…** directly in the Files and Finder menu. (copies and moves run on the server).
+- Finder tags and folder icons sync.
+- a "Not Synced" list to easily see issues. 
+- SMB3 with optional encryption.
+- 🧪 delta transfers (only changed blocks).
 
-The app should also work with any regular SMB server, minus versions, trash, live updates and server thumbnails. That mode is barely tested.
+**Server:** 
+- Samba with FaNG's own vfs module.
+- Stable file IDs through renames and moves.
+- Live change tracking with fanotify.
+- Versions as space-saving clones where the filesystem supports them (ZFS 2.2+), thinned like Time Machine.
+- An isolated thumbnail worker.
+- Permissions per folder and user, enforced for every SMB client.
+- 🧪 user groups.
+- Home folders.
+- Admin web page.
+
+The app should also work with any regular SMB server, minus versions, trash, live updates and server thumbnails. In addition the server should work with any regular SMB client and versioning should be exposed in at-least Windows Explorer. Though no real testing has been done on either of those scenerios yet.
 
 </details>
 
@@ -75,7 +93,7 @@ In the app: **Add Server** → your `FANG_IP`, port 445, user name and password.
 **Good to know**
 
 - FaNG gets its **own IP address** on your network (macvlan; `br0` on Unraid) because it runs a full SMB server on port 445. Other options are under [Setup details](#setup-details).
-- **Unraid:** add shares by pool path (`/mnt/<pool>/Photos`). User shares (`/mnt/user`) aren't supported yet.
+- **Unraid:** add shares by pool path (`/mnt/<pool>/Photos`). **User shares (`/mnt/user`) aren't supported yet.**
 - New files are owned by `99:100` (Unraid's `nobody:users`).
 - With a **free Apple ID** the app must be reinstalled from Xcode every 7 days.
 - **Mac:** allow FaNG under Privacy & Security → Local Network, or Finder says "No route to host".
@@ -159,11 +177,10 @@ Remove the `lan:` network at the bottom and set `FANG_HTTPS_PORT=8443` in `.env`
 ## Limitations
 
 - No TestFlight or App Store build yet (TestFlight is planned, no date).
-- Home network only for now; use your own VPN from elsewhere. A built-in tunnel comes after the core is fully solid.
-- Large files download fully before opening.
+- Home network only for now; use your own VPN from elsewhere.
 - Unraid user shares aren't supported yet, and share changes restart the server.
-- No error badges on items yet, no server-wide search, very large folders load in one piece.
-- Tested on Unraid with ZFS only. Other hosts, Btrfs and XFS are untested.
+- No error badges on items yet, no server-wide search.
+- Tested on Unraid with ZFS only. Other hosts, Btrfs and XFS are untested but **should** work.
 
 ## Roadmap
 
@@ -175,17 +192,16 @@ Remove the `lan:` network at the bottom and set `FANG_HTTPS_PORT=8443` in `.env`
 - [x] Server: index, stable IDs, live change tracking, permissions, home folders, admin page
 - [x] Server-made thumbnails for photos, RAW and video
 - [x] Versions, conflict handling, server-side Copy To… and Move To…, synced tags and folder icons
-- [x] 🧪 Shared trash · 🧪 delta transfers · 🧪 groups
+- [x] 🧪 Shared trash
+- [x] 🧪 delta transfers
+- [x] 🧪 groups
 
-**Next**
+**Planned**
 
 - [ ] Unraid user shares, presented as one normal folder
 - [ ] Search the whole server from Files and Finder (names, photo details, document text)
 - [ ] Share changes without a restart
 - [ ] TestFlight
-
-**Planned**
-
 - [ ] Public name and certificate alongside the local address (in progress)
 - [ ] Accounts, profile pictures and sign-in with your own OIDC provider
 - [ ] A new live web interface with a separate admin area
@@ -198,7 +214,6 @@ Remove the `lan:` network at the bottom and set `FANG_HTTPS_PORT=8443` in `.env`
 
 **Later**
 
-- [ ] Built-in tunnel for access away from home
 - [ ] Push notifications
 - [ ] App Store
 - [ ] Windows, Linux and Android apps
