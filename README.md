@@ -36,29 +36,28 @@ I built it because every way of using a home server from Apple devices was a com
 <details>
 <summary><strong>Everything else it does</strong></summary>
 
-
-**App:** 
-- Keep select files downloaded.
+**App:**
+- Keep selected files downloaded.
 - Edits made offline upload later.
-- Transfers auto resume after a dropped connection.
-- **Versions…**, **Resolve Conflict…**, **Copy To…** and **Move To…** directly in the Files and Finder menu. (copies and moves run on the server).
+- Transfers resume automatically after a dropped connection.
+- **Versions…**, **Resolve Conflict…**, **Copy To…** and **Move To…** directly in the Files and Finder menu (copies and moves run on the server).
 - Finder tags and folder icons sync.
-- a "Not Synced" list to easily see issues. 
+- A "Not Synced" list to easily see issues.
 - SMB3 with optional encryption.
-- 🧪 delta transfers (only changed blocks).
+- 🧪 Delta transfers (only changed blocks).
 
-**Server:** 
-- Samba with FaNG's own vfs module.
+**Server:**
+- Samba with FaNG's own VFS module.
 - Stable file IDs through renames and moves.
 - Live change tracking with fanotify.
 - Versions as space-saving clones where the filesystem supports them (ZFS 2.2+), thinned like Time Machine.
 - An isolated thumbnail worker.
 - Permissions per folder and user, enforced for every SMB client.
-- 🧪 user groups.
+- 🧪 User groups.
 - Home folders.
 - Admin web page.
 
-The app should also work with any regular SMB server, minus versions, trash, live updates and server thumbnails. In addition the server should work with any regular SMB client and versioning should be exposed in at-least Windows Explorer. Though no real testing has been done on either of those scenerios yet.
+The app should also work with any regular SMB server, minus versions, trash, live updates and server thumbnails. In addition, the server should work with any regular SMB client, and versioning should be exposed in at least Windows Explorer, though no real testing has been done on either of those scenarios yet.
 
 </details>
 
@@ -193,8 +192,8 @@ Remove the `lan:` network at the bottom and set `FANG_HTTPS_PORT=8443` in `.env`
 - [x] Server-made thumbnails for photos, RAW and video
 - [x] Versions, conflict handling, server-side Copy To… and Move To…, synced tags and folder icons
 - [x] 🧪 Shared trash
-- [x] 🧪 delta transfers
-- [x] 🧪 groups
+- [x] 🧪 Delta transfers
+- [x] 🧪 Groups
 
 **Planned**
 
